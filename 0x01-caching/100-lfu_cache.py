@@ -18,7 +18,7 @@ class LFUCache(BaseCaching):
         self.cache_data = OrderedDict()
         self.keys_freq = []
 
-    def _reorder_items(self, mru_key):
+    def __reorder_items(self, mru_key):
         '''Reorder
         '''
         max_positions = []
