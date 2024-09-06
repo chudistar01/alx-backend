@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-11;rgb:0000/0000/0000"""
+"""
 Main file for testing
 """
 
