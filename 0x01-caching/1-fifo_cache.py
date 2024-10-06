@@ -1,7 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+
 """Task 1
 """
 
+BaseCaching = __import__('base_caching').BaseCaching
 
 from collections import OrderedDict
 from base_caching import BaseCaching
