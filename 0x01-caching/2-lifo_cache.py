@@ -3,7 +3,7 @@
 '''Task 2
 '''
 
-
+from typing import Any, Optional
 from collections import OrderedDict
 from base_caching import BaseCaching
 
@@ -15,7 +15,7 @@ class LIFOCache(BaseCaching):
         super().__init__()
         self.cache_data = OrderedDict()
 
-    def put(self, key, item):
+    def put(self, key: Any, item: Any) -> None:
         '''Assign value to dictionary
         '''
 
@@ -30,7 +30,7 @@ class LIFOCache(BaseCaching):
         self.cache_data[key] = item
         self.cache_data.move_to_end(key, last=True)
 
-    def get(self, key):
+    def get(self, key: Any) -> Optional[key]:
         '''Returns thhe value in thhe dictionary
         '''
         if key is None or key not in self.cache_data:
