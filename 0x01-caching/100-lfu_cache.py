@@ -1,70 +1,53 @@
-#!/usr/bin/env python3
-
-'''Task 4
-'''
-
-
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from base_caching import BaseCaching
 
 
 class LFUCache(BaseCaching):
-    '''Subclass thhhat inherits from base class
-    '''
-    def __init__(self):
-        '''init function
-        '''
-        super().__init__()
-        self.cache_data = OrderedDict()
-        self.keys_freq = []
+    """LFU Cache system."""
 
-    def __reorder_items(self, mru_key):
-        '''Reorder
-        '''
-        max_positions = []
-        mru_freq = 0
-        mru_pos = 0
-        ins_pos = 0
-        for i, key_freq in enumerate(self.keys_freq):
-            if key_freq[0] == mru_key:
-                mru_freq = key_freq[1] + 1
-                mru_pos = i
-                break
-            elif len(max_positions) == 0:
-                max_positions.append(i)
-            elif key_freq[1] < self.keys_freq[max_positions[-1]][1]:
-                max_positions.append(i)
-        max_positions.reverse()
-        for pos in max_positions:
-            if self.keys_freq[pos][1] > mru_freq:
-                break
-            ins_pos = pos
-        self.keys_freq.pop(mru_pos)
-        self.keys_freq.insert(ins_pos, [mru_key, mru_freq])
+    def __init__(self):
+        """Initialize LFUCache."""
+        super().__init__()
+        self.cache_data = {}
+        self.freq_map = defaultdict(OrderedDict)
+        self.key_freq = {}  
+        self.min_freq = 0
+
+    def __update_freq(self, key):
+        """Update the frequency of a key."""
+        freq = self.key_freq[key]
+        del self.freq_map[freq][key]
+        if not self.freq_map[freq]:
+            del self.freq_map[freq]
+            if self.min_freq == freq:
+                self.min_freq += 1
+        self.key_freq[key] += 1
+        new_freq = self.key_freq[key]
+        self.freq_map[new_freq][key] = None
 
     def put(self, key, item):
-        '''put function
-        '''
+        """Add an item to the cache."""
         if key is None or item is None:
             return
-        if key not in self.cache_data:
-            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
-                lfu_key, _ = self.keys_freq[-1]
-                self.cache_data.pop(lfu_key)
-                self.keys_freq.pop()
-                print("DISCARD: , {lfu_key}")
+
+        if key in self.cache_data:
             self.cache_data[key] = item
-            ins_index = len(self.keys_freq)
-            for i, key_freq in enumerate(self.keys_freq):
-                if key_freq[1] == 0:
-                    ins_index = i
-                    break
-            self.keys_freq.insert(ins_index, [key, 0])
+            self.__update_freq(key)
         else:
+            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                lfu_key, _ = self.freq_map[self.min_freq].popitem(last=False)
+                del self.cache_data[lfu_key]
+                del self.key_freq[lfu_key]
+                print(f"DISCARD: {lfu_key}")
             self.cache_data[key] = item
-            self.__reorder_items(key)
+            self.key_freq[key] = 1
+            self.freq_map[1][key] = None
+            self.min_freq = 1
+
     def get(self, key):
-        '''get function'''
-        if key is not None and key in self.cache_data:
-            self.__reorder_items(key)
-        return self.cache_data.get(key, None)
+        """Get an item by key."""
+        if key is None or key not in self.cache_data:
+            return None
+        self.__update_freq(key)
+        return self.cache_data[key]
+
