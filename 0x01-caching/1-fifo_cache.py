@@ -2,7 +2,6 @@
 """Task 1
 """
 
-
 from collections import OrderedDict
 from base_caching import BaseCaching
 
@@ -19,27 +18,15 @@ class FIFOCache(BaseCaching):
         """Assign value to dictionary
         """
         if key is None or item is None:
-            return None
+            return
+        
+        self.cache_data[key] = item
 
-        if key in self.cache_data:
-            self.cache_data[key] = item
-
-        else:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                first_key, first_value = self.cache_data.popitem(last=False)
-                print(f"DISCARD: {first_key}")
-            self.cache_data[key] = item
+        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
+            first_key, _ = self.cache_data.popitem(last=False)
+            print("DISCARD:", first_key)
 
     def get(self, key):
-        """Returns thhe value in thhe dictionary
+        """Returns the value in thhe dictionary
         """
-        if key is None or key not in self.cache_data:
-            return None
-        return self.cache_data[key]
-
-    def print_cache(self):
-        """prints cache
-        """
-        print("Current cache:")
-        for key, value in self.cache_data.items():
-            print(f"{key}: {value}")
+        return self.cache_data.get(key, None)
